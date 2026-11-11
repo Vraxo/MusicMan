@@ -1,10 +1,10 @@
-﻿using MusicMan.Infrastructure;
+using MusicMan.Infrastructure;
 
 namespace MusicMan.Stages.Fetching;
 
 internal static class UserInput
 {
-    private const string DataDir = "Data";
+    private static readonly string DataDir = SettingsManager.DataDir;
 
     public static string? GetInputFilePath()
     {

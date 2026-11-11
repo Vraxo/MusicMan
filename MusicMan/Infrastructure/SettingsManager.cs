@@ -5,7 +5,8 @@ namespace MusicMan.Infrastructure;
 
 internal static class SettingsManager
 {
-    private static readonly string SettingsFile = Path.Combine("Data", "settings.json");
+    internal static readonly string DataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+    private static readonly string SettingsFile = Path.Combine(DataDir, "settings.json");
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         WriteIndented = true,
@@ -34,7 +35,7 @@ internal static class SettingsManager
             }
             else
             {
-                Directory.CreateDirectory("Data");
+                Directory.CreateDirectory(DataDir);
                 string serialized = JsonSerializer.Serialize(settings, SerializerOptions);
                 File.WriteAllText(SettingsFile, serialized);
                 Log.Info($"Created default configuration file: '{SettingsFile}'");
@@ -47,6 +48,21 @@ internal static class SettingsManager
                 $"Using default settings. Error: {ex.Message}");
         }
 
+        ResolvePaths(settings, AppContext.BaseDirectory);
         Current = settings;
     }
+
+    internal static void ResolvePaths(Settings settings, string baseDirectory)
+    {
+        settings.DatabaseDir = ResolvePath(settings.DatabaseDir, baseDirectory);
+        settings.CoversDir = ResolvePath(settings.CoversDir, baseDirectory);
+        settings.BaseDataDir = ResolvePath(settings.BaseDataDir, baseDirectory);
+        settings.CookieFile = ResolvePath(settings.CookieFile, baseDirectory);
+        settings.PlaylistCheckReportFile = ResolvePath(settings.PlaylistCheckReportFile, baseDirectory);
+        settings.YtDlpDir = ResolvePath(settings.YtDlpDir, baseDirectory);
+        settings.FfmpegDir = ResolvePath(settings.FfmpegDir, baseDirectory);
+    }
+
+    private static string ResolvePath(string path, string baseDirectory) =>
+        string.IsNullOrWhiteSpace(path) ? path : Path.GetFullPath(path, baseDirectory);
 }
