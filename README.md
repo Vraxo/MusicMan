@@ -22,7 +22,9 @@ dotnet run --project MusicMan
 ```
 
 The first run creates `Data/settings.json` and an empty `Music/base/tracks.csv`, then exits.
-Fill in the CSV and run the command again.
+Fill in the CSV and run the command again. `Data/` and `Music/` are relative to the
+application directory, not the current working directory (including when launched through a shim).
+When using `dotnet run`, this is the build output directory under `artifacts/bin/MusicMan/`.
 
 ## 🎧 Modes
 
@@ -63,7 +65,9 @@ https://www.youtube.com/watch?v=bbbbbbbbbbb,Second Track,Example Artist,First Al
 
 ## ⚙️ Settings
 
-`Data/settings.json` is created with defaults on first run.
+`Data/settings.json` is created with defaults on first run. Relative paths in settings are resolved
+against the application directory; absolute paths are used as given. Existing data in a former
+working directory is not moved automatically.
 
 | Key | Default | Description |
 | --- | --- | --- |
