@@ -47,7 +47,7 @@ Fields containing commas or quotes must be quoted as usual.
 | `title` | Track title, used as the output file name |
 | `artist` | Performer tag |
 | `album` | Album tag and the subfolder name under `Music/tracks/` |
-| `date` | Release date; only the first four characters (the year) reach the tag |
+| `date` | Release date (e.g. `2024-03-01`). Stored in full where supported (`.opus`, `.ogg`, `.flac`, `.m4a`, `.wav`, ID3v2.4); year-only tags such as ID3v2.3 store the 4-digit year |
 | `track_number` | Track number tag |
 | `album_artist` | Album artist tag |
 | `composer` | Composer tag |

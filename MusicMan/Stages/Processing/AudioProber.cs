@@ -52,15 +52,9 @@ internal static class AudioProber
                 CheckField(tag.Track.ToString(), trackNum.ToString(), "Track", mismatches);
             }
 
-            uint expectedYear = 0;
-            if (!string.IsNullOrWhiteSpace(track.Date) && track.Date.Length >= 4 && uint.TryParse(track.Date[..4], out uint parsedYear))
-            {
-                expectedYear = parsedYear;
-            }
-            if (tag.Year != expectedYear)
-            {
-                CheckField(tag.Year.ToString(), expectedYear.ToString(), "Date", mismatches);
-            }
+            string actualDate = DateTagHandler.Read(tag) ?? string.Empty;
+            string expectedDate = DateTagHandler.GetExpected(tag, track.Date);
+            CheckField(actualDate, expectedDate, "Date", mismatches);
 
             string expectedGenre = track.Tags.Count > 0 ? string.Join(", ", track.Tags) : string.Empty;
             string actualGenre = tag.Genres.Length > 0 ? string.Join(", ", tag.Genres) : string.Empty;
