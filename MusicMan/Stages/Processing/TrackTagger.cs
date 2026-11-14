@@ -18,10 +18,7 @@ internal static class TrackTagger
             file.Tag.Album = track.Album ?? string.Empty;
             file.Tag.Track = (uint)(track.TrackNumber ?? 0);
 
-            if (!string.IsNullOrWhiteSpace(track.Date) && track.Date.Length >= 4 && uint.TryParse(track.Date[..4], out uint year))
-            {
-                file.Tag.Year = year;
-            }
+            DateTagHandler.Apply(file.Tag, track.Date);
 
             file.Tag.Genres = track.Tags?.ToArray() ?? [];
             file.Tag.Comment = track.Source ?? string.Empty;
