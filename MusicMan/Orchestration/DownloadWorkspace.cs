@@ -1,4 +1,4 @@
-﻿using MusicMan.Core;
+using MusicMan.Core;
 using MusicMan.Infrastructure;
 using MusicMan.Stages.Fetching;
 using MusicMan.Stages.Processing;
@@ -21,7 +21,7 @@ internal sealed class DownloadWorkspace(string albumDir)
 
         try
         {
-            int exitCode = await Task.Run(() => ProcessExecutor.Run(ytDlpPath, command));
+            int exitCode = await ProcessExecutor.RunAsync(ytDlpPath, command);
             return exitCode == 0;
         }
         catch (Win32Exception)
@@ -71,7 +71,7 @@ internal sealed class DownloadWorkspace(string albumDir)
 
         try
         {
-            int exitCode = await Task.Run(() => ProcessExecutor.Run(ytDlpPath, command));
+            int exitCode = await ProcessExecutor.RunAsync(ytDlpPath, command);
             return exitCode == 0;
         }
         catch (Win32Exception)
@@ -90,7 +90,7 @@ internal sealed class DownloadWorkspace(string albumDir)
 
         try
         {
-            int exitCode = await Task.Run(() => ProcessExecutor.Run(ffmpegPath, command));
+            int exitCode = await ProcessExecutor.RunAsync(ffmpegPath, command);
             if (exitCode != 0)
             {
                 AnsiConsole.MarkupLine("[red]ffmpeg processing failed.[/]");
