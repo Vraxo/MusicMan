@@ -8,9 +8,11 @@ on later runs.
 
 | Dependency | Purpose |
 | --- | --- |
-| [.NET SDK 10.0](https://dotnet.microsoft.com/download) | Build and run |
+| [.NET SDK 11.0](https://dotnet.microsoft.com/download) | Build and run |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Downloading audio |
 | [ffmpeg](https://ffmpeg.org/) | Conversion, trimming, looping |
+
+The projects target .NET 11 and use C# 15.
 
 Both tools must be on `PATH` or pointed to from the settings file. The default executable names
 (`yt-dlp.exe`, `ffmpeg.exe`) target Windows.
