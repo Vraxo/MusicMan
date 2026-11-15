@@ -34,7 +34,7 @@ internal class Program
                 }
                 else if (args.Any(a => a.Equals("process", StringComparison.OrdinalIgnoreCase)))
                 {
-                    ManualProcessor.Run();
+                    await ManualProcessor.RunAsync();
                 }
                 else
                 {

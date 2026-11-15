@@ -43,7 +43,7 @@ internal sealed class CoverFitter(CoverFitMode mode)
 
         try
         {
-            int exitCode = await Task.Run(() => ProcessExecutor.Run(ffmpegPath, command));
+            int exitCode = await ProcessExecutor.RunAsync(ffmpegPath, command);
             if (exitCode == 0 && File.Exists(outputPath))
             {
                 return outputPath;

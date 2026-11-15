@@ -1,4 +1,4 @@
-﻿using MusicMan.Infrastructure;
+using MusicMan.Infrastructure;
 using MusicMan.Stages.Fetching;
 using MusicMan.Stages.Processing;
 using System.Globalization;
@@ -7,7 +7,7 @@ namespace MusicMan.Orchestration;
 
 internal static class ManualProcessor
 {
-    public static void Run()
+    public static async Task RunAsync()
     {
         Log.Info("--- Manual FLAC Audio Processor ---");
         Console.WriteLine();
@@ -44,7 +44,7 @@ internal static class ManualProcessor
         string outputFile = ResolveOutputFile(inputFile);
 
         Log.Action("Processing audio...");
-        ExecuteProcessing(inputFile, outputFile, tempo, range, sampleRate);
+        await ExecuteProcessingAsync(inputFile, outputFile, tempo, range, sampleRate);
     }
 
     private static int ProbeSampleRate(string inputFile)
@@ -77,7 +77,7 @@ internal static class ManualProcessor
         return outputFile;
     }
 
-    private static void ExecuteProcessing(string inputFile, string outputFile, double? tempo, IReadOnlyList<string> range, int sampleRate)
+    private static async Task ExecuteProcessingAsync(string inputFile, string outputFile, double? tempo, IReadOnlyList<string> range, int sampleRate)
     {
         FlacFfmpegCommandBuilder commandBuilder = new(inputFile, outputFile, tempo, range, sampleRate);
         ProcessArguments command = commandBuilder.Build();
@@ -85,7 +85,7 @@ internal static class ManualProcessor
         string ffmpegPath = ExecutableFinder.GetFullPath(
             SettingsManager.Current.FfmpegExe,
             SettingsManager.Current.FfmpegDir);
-        int exitCode = ProcessExecutor.Run(ffmpegPath, command);
+        int exitCode = await ProcessExecutor.RunAsync(ffmpegPath, command);
 
         Console.WriteLine();
 

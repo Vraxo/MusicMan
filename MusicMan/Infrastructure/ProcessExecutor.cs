@@ -6,45 +6,69 @@ namespace MusicMan.Infrastructure;
 
 internal class ProcessExecutor
 {
-    public static int Run(string exe, ProcessArguments args, Action<string>? stdErrHandler = null)
+    public static async Task<int> RunAsync(
+        string exe,
+        ProcessArguments args,
+        Action<string>? stdErrHandler = null,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             using Process proc = CreateProcess(exe, args);
-
-            proc.OutputDataReceived += (_, e) =>
-            {
-                if (string.IsNullOrEmpty(e.Data) || IsProgressLine(e.Data) || IsNoiseLine(e.Data))
-                {
-                    return;
-                }
-
-                Log.Info(e.Data);
-            };
-
-            proc.ErrorDataReceived += (_, e) =>
-            {
-                if (string.IsNullOrEmpty(e.Data) || IsProgressLine(e.Data))
-                {
-                    return;
-                }
-
-                if (stdErrHandler is not null)
-                {
-                    stdErrHandler(e.Data);
-                }
-                else
-                {
-                    HandleStdErr(e.Data);
-                }
-            };
-
             proc.Start();
-            proc.BeginOutputReadLine();
-            proc.BeginErrorReadLine();
-            proc.WaitForExit();
 
-            return proc.ExitCode;
+            try
+            {
+                await foreach (ProcessOutputLine line in proc.ReadAllLinesAsync(cancellationToken))
+                {
+                    string data = line.Content;
+                    if (string.IsNullOrEmpty(data) || IsProgressLine(data))
+                    {
+                        continue;
+                    }
+
+                    if (line.StandardError)
+                    {
+                        if (stdErrHandler is not null)
+                        {
+                            stdErrHandler(data);
+                        }
+                        else
+                        {
+                            HandleStdErr(data);
+                        }
+                    }
+                    else if (!IsNoiseLine(data))
+                    {
+                        Log.Info(data);
+                    }
+                }
+
+                await proc.WaitForExitAsync(cancellationToken);
+                return proc.ExitCode;
+            }
+            catch
+            {
+                // Disposing Process releases its handle but doesn't stop the child.
+                // Also clean up if output handling fails, not just on cancellation.
+                try
+                {
+                    proc.Kill(entireProcessTree: true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // The process has already exited.
+                }
+
+                await proc.WaitForExitAsync(CancellationToken.None);
+                throw;
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Win32Exception)
         {
