@@ -1,4 +1,4 @@
-﻿using MusicMan.Core;
+using MusicMan.Core;
 using MusicMan.Infrastructure;
 using MusicMan.Stages.Processing;
 using MusicMan.Stages.Storage;
@@ -21,26 +21,29 @@ internal sealed class TrackProcessor(Track track, int index, int total, CsvTrack
 
     private Track _track = track;
 
-    private readonly string _albumDir = Path.Combine(
-        SettingsManager.Current.BaseDataDir,
-        PathUtils.SafeFileName(track.Album));
+    private readonly string _albumDir = GetAlbumDirectory(track, SettingsManager.Current.BaseDataDir);
+
+    private static string GetAlbumDirectory(Track track, string baseDataDir)
+    {
+        return Path.Combine(baseDataDir, PathUtils.SafeFileName(track.Album));
+    }
+
+    public static string GetDefaultOutputFile(Track track, string baseDataDir)
+    {
+        return Path.Combine(GetAlbumDirectory(track, baseDataDir), PathUtils.SafeFileName(track.Title) + ".opus");
+    }
 
     public static string GetOutputFile(Track track)
     {
-        string albumDir = Path.Combine(
-            SettingsManager.Current.BaseDataDir,
-            PathUtils.SafeFileName(track.Album));
-
-        string baseFileName = PathUtils.SafeFileName(track.Title);
-
-        if (!Directory.Exists(albumDir))
+        string defaultPath = GetDefaultOutputFile(track, SettingsManager.Current.BaseDataDir);
+        if (!Directory.Exists(Path.GetDirectoryName(defaultPath)))
         {
-            return Path.Combine(albumDir, baseFileName + ".opus");
+            return defaultPath;
         }
 
         foreach (string ext in SupportedExtensions)
         {
-            string candidate = Path.Combine(albumDir, baseFileName + ext);
+            string candidate = Path.ChangeExtension(defaultPath, ext);
 
             if (File.Exists(candidate))
             {
@@ -48,7 +51,7 @@ internal sealed class TrackProcessor(Track track, int index, int total, CsvTrack
             }
         }
 
-        return Path.Combine(albumDir, baseFileName + ".opus");
+        return defaultPath;
     }
 
     public async Task<TrackProcessStatus> ProcessAsync()
