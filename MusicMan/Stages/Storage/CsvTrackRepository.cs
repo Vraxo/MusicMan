@@ -100,7 +100,8 @@ internal sealed class CsvTrackRepository
                     Range = ParseSemicolonList(GetField("range")),
                     Tempo = ParseNullableDouble(GetField("tempo")),
                     Loop = int.TryParse(GetField("loop"), out int loopVal) ? loopVal : 1,
-                    DatabaseFilePath = csvPath
+                    DatabaseFilePath = csvPath,
+                    CsvLineNumber = i + 1
                 });
             }
         }

@@ -32,4 +32,6 @@ internal sealed record Track
     public int Loop { get; init; } = 1;
 
     public string? DatabaseFilePath { get; init; }
+
+    public int? CsvLineNumber { get; init; }
 }

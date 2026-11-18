@@ -132,7 +132,10 @@ Music/
 
 ## 🔄 How a sync works
 
-1. Read `Music/base/tracks.csv`.
+1. Read `Music/base/tracks.csv` and check for tracks that would share an output path after filename
+   cleanup. This check ignores case. If any paths collide, sync stops before moving or downloading
+   tracks and prints the conflicting paths and CSV line numbers. Edit the album or title, or remove
+   duplicate rows, and run sync again.
 2. Scan the library and match files by the source URL in their Comment tag, moving files whose album
    or title changed.
 3. Compare tags and cover art with the CSV. Up-to-date files are skipped, metadata mismatches are

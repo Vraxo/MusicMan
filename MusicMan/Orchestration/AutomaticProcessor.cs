@@ -15,7 +15,25 @@ internal static class AutomaticProcessor
             return;
         }
 
-        LibraryScanner scanner = new(SettingsManager.Current.BaseDataDir);
+        string baseDataDir = SettingsManager.Current.BaseDataDir;
+        List<IGrouping<string, Track>> collisions = TrackOutputCollisions.Find(allTracks, baseDataDir).ToList();
+        if (collisions.Count > 0)
+        {
+            Log.Error("Sync aborted: multiple rows in tracks.csv map to the same output path.");
+            foreach (IGrouping<string, Track> collision in collisions)
+            {
+                Log.Error($"  {Path.GetRelativePath(baseDataDir, collision.Key)}");
+                foreach (Track track in collision)
+                {
+                    Log.Error($"    Line {track.CsvLineNumber}: '{track.Title}' by '{track.Artist}' (album: '{track.Album}')");
+                }
+            }
+
+            Log.Info("Change the album or title, or remove duplicate rows, then run sync again.");
+            return;
+        }
+
+        LibraryScanner scanner = new(baseDataDir);
         Dictionary<string, string> sourceMap = await scanner.ScanBySourceAsync();
         LibraryScanner.ReconcileRenamed(allTracks, sourceMap);
 
